@@ -6,10 +6,12 @@ from helper import str_time_to_num_time, num_time_to_str_time
 
 TIME_TO_VDOT = pd.read_csv('../data/time-to-vdot-coefficients.csv')
 VDOT_TO_TIME = pd.read_csv('../data/vdot-to-time-coefficients.csv')
+VDOT_TO_PACE = pd.read_csv('../data/vdot-to-pace-coefficients.csv')
 
 ALL_DISTANCES = ['1500', 'Mile', '3k', '2-mile', '5k', '8k', '5-mile',
                  '10k', '15k', '10-mile', '20k', '1/2 Marathon', '25k',
                  '30k', 'Marathon']
+ALL_PACES = ['EL', 'M', 'T', 'I', 'R']
 
 def convert_time_to_vdot(time, distance):
     # Get equation parameters
@@ -37,6 +39,17 @@ def convert_vdot_to_time(vdot, distance):
     return c + (m1*vdot) + (m2*(vdot**2)) + (m3*(vdot**3)) + (m4*(vdot**4))
 
 
+def convert_vdot_to_pace(vdot, pace):
+    # Get equation parameters
+    c = VDOT_TO_PACE[VDOT_TO_PACE.Pace==pace].iloc[0].Intercept
+    m1 = VDOT_TO_PACE[VDOT_TO_PACE.Pace==pace].iloc[0].Coef1
+    m2 = VDOT_TO_PACE[VDOT_TO_PACE.Pace==pace].iloc[0].Coef2
+    m3 = VDOT_TO_PACE[VDOT_TO_PACE.Pace==pace].iloc[0].Coef3
+    m4 = VDOT_TO_PACE[VDOT_TO_PACE.Pace==pace].iloc[0].Coef4
+    
+    return c + (m1*vdot) + (m2*(vdot**2)) + (m3*(vdot**3)) + (m4*(vdot**4))
+
+
 def equivalent_times(time, distance):
     # Get equivalent VDOT score
     vdot = convert_time_to_vdot(time, distance)
@@ -49,6 +62,25 @@ def equivalent_times(time, distance):
     
     return equivs
 
-#res = equivalent_times('2:01:39', 'Marathon')
-#for key in res:
-#    print(key, res[key])
+
+def equivalent_paces(time, distance):
+    # Get equivalent VDOT score
+    vdot = convert_time_to_vdot(time, distance)
+    
+    # From VDOT score, find paces
+    equivs = {}
+    for pace in ALL_PACES:
+        equivs[pace] = num_time_to_str_time(convert_vdot_to_pace(vdot, pace), dp=0)
+    
+    return equivs
+
+
+res = equivalent_times('4:20:00', 'Marathon')
+for key in res:
+    print(key, res[key])
+
+print()
+
+res = equivalent_paces('3:30:00', 'Marathon')
+for key in res:
+    print(key, res[key])

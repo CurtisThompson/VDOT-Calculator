@@ -36,12 +36,16 @@ def str_time_to_num_time(time):
 def num_time_to_str_time(time, dp=2):
     """Convert a number of seconds to a string time (e.g. 1:36:50)."""
     str_time = ''
+    str_hour = ''
+    str_mins = ''
+    str_secs = ''
     
     # Get number of whole hours
     hours = int(time // 3600)
     # Add to string time
     if hours > 0:
         str_time += str(hours)
+        str_hour = str(hours)
     # Remove hours from time, for minutes calculation
     time -= hours * 3600
     
@@ -53,9 +57,15 @@ def num_time_to_str_time(time, dp=2):
             str_time += ':'
             if mins < 10:
                 str_time += '0'
+                str_mins += '0'
         str_time += str(mins)
+        str_mins += str(mins)
     # Remove minutes from time, for seconds calculation
     time -= mins * 60
+    # Deal with 60 edge case
+    if str_mins == '60':
+        str_hour = str(int(str_hour) + 1)
+        str_mins = '00'
     
     # Get number of seconds to 2 dp (or input dp)
     secs = round(time, dp)
@@ -65,10 +75,16 @@ def num_time_to_str_time(time, dp=2):
             str_time += ':'
             if secs < 10:
                 str_time += '0'
+                str_secs += '0'
         str_time += str(secs) if str(secs)[-2:] != '.0' else str(secs)[:-2]
-    
+        str_secs += str(secs) if str(secs)[-2:] != '.0' else str(secs)[:-2]
+    # Deal with 60 edge case
+    if str_secs == '60':
+        str_mins = ('0' if (mins < 9) and (hours > 0) else '') + str(mins+1)
+        str_secs = '00'
+        
     # Return string time
-    return str_time
+    return str_hour + (':' if hours>1 else '') + str_mins + (':' if mins>1 else '') + str_secs
 
 
 def vdot_to_running_times(vdot, data=load_times()):
