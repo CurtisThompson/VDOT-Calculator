@@ -33,7 +33,7 @@ def str_time_to_num_time(time):
     return (3600*hours) + (60*mins) + secs
 
 
-def num_time_to_str_time(time):
+def num_time_to_str_time(time, dp=2):
     """Convert a number of seconds to a string time (e.g. 1:36:50)."""
     str_time = ''
     
@@ -57,8 +57,8 @@ def num_time_to_str_time(time):
     # Remove minutes from time, for seconds calculation
     time -= mins * 60
     
-    # Get number of seconds to 2 dp
-    secs = round(time, 2)
+    # Get number of seconds to 2 dp (or input dp)
+    secs = round(time, dp)
     # Add to string time
     if (secs > 0) or (len(str_time) > 0):
         if len(str_time) > 0:
